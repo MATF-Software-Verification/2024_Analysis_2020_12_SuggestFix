@@ -1,7 +1,9 @@
 package ast;
 
+import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.NameExpr;
+import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.Statement;
@@ -19,8 +21,10 @@ public class SuggestionUtil {
     private static String toString(List<Suggestion> suggestions) {
         StringBuilder sb = new StringBuilder();
         for (var suggestion : suggestions) {
-            switch (suggestion.getType()){
-                case IDENTIFIER_ASSIGNMENT: sb.append(identifierAssignmentToString(suggestion)); break;
+            switch (suggestion.getType()) {
+                case IDENTIFIER_ASSIGNMENT:
+                    sb.append(identifierAssignmentToString(suggestion));
+                    break;
             }
 
         }
@@ -51,44 +55,50 @@ public class SuggestionUtil {
         SuggestionIdentifiersAndAssignments current;
         if (expressionStmt.getExpression().isVariableDeclarationExpr()) {
             VariableDeclarationExpr variableDeclarationExpr = (VariableDeclarationExpr) expressionStmt.getExpression();
-            for (var variable : variableDeclarationExpr.getVariables()) {
-                if (variable.getInitializer().isEmpty()) {
+            for (VariableDeclarator variable : variableDeclarationExpr.getVariables()) {
+                String identifier = variable.getName().getIdentifier();
+                if (!identifiersAndAssignments.containsKey(identifier)) {
                     current = new SuggestionIdentifiersAndAssignments();
-                    var identifier = variable.getName().getIdentifier();
-
                     if (variable.getBegin().isPresent()) {
                         current.setBegin(String.valueOf(variable.getBegin().get().line));
                     }
                     if (variable.getEnd().isPresent()) {
                         current.setEnd(String.valueOf(variable.getBegin().get().line));
                     }
-                    current.setCode(statement.toString());
-                    current.setInitialization(variable.getTypeAsString() + " " + variable.getNameAsString());
+                    if (variable.getInitializer().isEmpty()) {
+                        current.setCode(statement.toString());
+                        current.setInitialization(variable.getTypeAsString() + " " + variable.getNameAsString());
+                    }
                     identifiersAndAssignments.put(identifier, current);
                 }
             }
-
         }
         if (expressionStmt.getExpression().isAssignExpr()) {
             AssignExpr assignExpr = (AssignExpr) expressionStmt.getExpression();
             if (assignExpr.getTarget().isNameExpr()) {
-                var nameExpression = (NameExpr) assignExpr.getTarget();
-                var identifier = nameExpression.getName().getIdentifier();
+                NameExpr nameExpression = (NameExpr) assignExpr.getTarget();
+                String identifier = nameExpression.getName().getIdentifier();
                 if (identifiersAndAssignments.containsKey(identifier)) {
                     current = identifiersAndAssignments.get(identifier);
-                    suggestion = new SuggestionIdentifiersAndAssignments();
-                    if (assignExpr.getBegin().isPresent()) {
-                        suggestion.setBegin(String.valueOf(assignExpr.getBegin().get().line));
+                    if (!current.isUsedInOtherScope()) {
+                        suggestion = new SuggestionIdentifiersAndAssignments();
+                        if (assignExpr.getBegin().isPresent()) {
+                            suggestion.setBegin(String.valueOf(assignExpr.getBegin().get().line));
+                        }
+                        if (assignExpr.getEnd().isPresent()) {
+                            suggestion.setEnd(String.valueOf(assignExpr.getBegin().get().line));
+                        }
+                        suggestion.setCode(current.getInitialization() + " = " + assignExpr.getValue().toString() + ";");
+                        suggestions.add(new Suggestion(
+                                current,
+                                suggestion,
+                                SuggestionTypeEnum.IDENTIFIER_ASSIGNMENT)
+                        );
                     }
-                    if (assignExpr.getEnd().isPresent()) {
-                        suggestion.setEnd(String.valueOf(assignExpr.getBegin().get().line));
-                    }
-                    suggestion.setCode(current.getInitialization() + " = " + assignExpr.getValue().toString() + ";");
-                    suggestions.add(new Suggestion(
-                            current,
-                            suggestion,
-                            SuggestionTypeEnum.IDENTIFIER_ASSIGNMENT)
-                    );
+                } else {
+                    current = new SuggestionIdentifiersAndAssignments();
+                    current.setUsedInOtherScope(true);
+                    identifiersAndAssignments.put(identifier, current);
                 }
             }
         }

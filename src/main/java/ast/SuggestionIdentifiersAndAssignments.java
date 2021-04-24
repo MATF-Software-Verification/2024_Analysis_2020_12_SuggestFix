@@ -6,6 +6,8 @@ public class SuggestionIdentifiersAndAssignments extends SuggestionNode {
 
     private String assignment;
 
+    private boolean usedInOtherScope = false;
+
     public SuggestionIdentifiersAndAssignments() {
         super();
     }
@@ -24,5 +26,13 @@ public class SuggestionIdentifiersAndAssignments extends SuggestionNode {
 
     public void setAssignment(String assignment) {
         this.assignment = assignment;
+    }
+
+    public boolean isUsedInOtherScope() {
+        return usedInOtherScope;
+    }
+
+    public void setUsedInOtherScope(boolean usedInOtherScope) {
+        this.usedInOtherScope = usedInOtherScope;
     }
 }

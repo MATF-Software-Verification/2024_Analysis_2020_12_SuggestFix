@@ -16,51 +16,17 @@ import java.util.*;
 
 public class ASTVisitor extends VoidVisitorAdapter<Void> {
 
-    public List<SimpleName> simpleNames = new ArrayList<>();
-
     @Override
-    public void visit(MethodDeclaration n, Void arg) {
+    public void visit(BlockStmt n, Void arg) {
         super.visit(n, arg);
-        if (n.getBody().isPresent()) {
-            NodeList<Statement> statements = n.getBody().get().getStatements();
-
+        if (n.getStatements().isNonEmpty()) {
+            NodeList<Statement> statements = n.getStatements();
             for (var statement : statements) {
-                SuggestionIdentifiersAndAssignments current;
-                SuggestionIdentifiersAndAssignments suggestion;
                 if (statement.isExpressionStmt()) {
                     ExpressionStmt expressionStmt = (ExpressionStmt) statement;
                     SuggestionUtil.mergeInitializationAndAssignment(statement, expressionStmt);
                 }
             }
         }
-    }
-
-
-
-    @Override
-    public void visit(ExpressionStmt n, Void arg) {
-        super.visit(n, arg);
-        Expression expression = n.getExpression();
-        if (expression.isVariableDeclarationExpr()) {
-            VariableDeclarationExpr variableDeclarationExpr = expression.asVariableDeclarationExpr();
-            NodeList<VariableDeclarator> variables = variableDeclarationExpr.getVariables();
-            for (VariableDeclarator variable : variables) {
-                super.visit(variable, arg);
-            }
-        } else if (expression.isAssignExpr()) {
-            AssignExpr assignExpr = expression.asAssignExpr();
-            simpleNames.add(assignExpr.getTarget().asNameExpr().getName());
-        }
-    }
-
-    @Override
-    public void visit(VariableDeclarator n, Void arg) {
-        super.visit(n, arg);
-        simpleNames.add(n.getName());
-    }
-
-    @Override
-    public void visit(SimpleName n, Void arg) {
-        super.visit(n, arg);
     }
 }
