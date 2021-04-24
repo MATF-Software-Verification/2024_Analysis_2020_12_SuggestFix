@@ -4,10 +4,7 @@ import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.expr.AssignExpr;
-import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.expr.SimpleName;
-import com.github.javaparser.ast.expr.VariableDeclarationExpr;
+import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.Statement;
@@ -22,17 +19,35 @@ public class ASTVisitor extends VoidVisitorAdapter<Void> {
     public List<SimpleName> simpleNames = new ArrayList<>();
 
     @Override
+    public void visit(MethodDeclaration n, Void arg) {
+        super.visit(n, arg);
+        if (n.getBody().isPresent()) {
+            NodeList<Statement> statements = n.getBody().get().getStatements();
+
+            for (var statement : statements) {
+                SuggestionIdentifiersAndAssignments current;
+                SuggestionIdentifiersAndAssignments suggestion;
+                if (statement.isExpressionStmt()) {
+                    ExpressionStmt expressionStmt = (ExpressionStmt) statement;
+                    SuggestionUtil.mergeInitializationAndAssignment(statement, expressionStmt);
+                }
+            }
+        }
+    }
+
+
+
+    @Override
     public void visit(ExpressionStmt n, Void arg) {
         super.visit(n, arg);
         Expression expression = n.getExpression();
-        if(expression.isVariableDeclarationExpr()){
+        if (expression.isVariableDeclarationExpr()) {
             VariableDeclarationExpr variableDeclarationExpr = expression.asVariableDeclarationExpr();
             NodeList<VariableDeclarator> variables = variableDeclarationExpr.getVariables();
-            for(VariableDeclarator variable : variables) {
+            for (VariableDeclarator variable : variables) {
                 super.visit(variable, arg);
             }
-        }
-        else if(expression.isAssignExpr()) {
+        } else if (expression.isAssignExpr()) {
             AssignExpr assignExpr = expression.asAssignExpr();
             simpleNames.add(assignExpr.getTarget().asNameExpr().getName());
         }

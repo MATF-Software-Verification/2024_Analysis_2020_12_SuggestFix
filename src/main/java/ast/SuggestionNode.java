@@ -3,7 +3,9 @@ package ast;
 public class SuggestionNode {
 
     private String code;
+
     private String begin;
+
     private String end;
 
     public String getCode() {

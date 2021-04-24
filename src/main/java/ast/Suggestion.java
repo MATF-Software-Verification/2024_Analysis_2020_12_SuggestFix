@@ -14,7 +14,15 @@ public class Suggestion {
 
     private SuggestionNode suggested;
 
+    private SuggestionTypeEnum type;
+
     public Suggestion() {
+    }
+
+    public Suggestion(SuggestionNode current, SuggestionNode suggested, SuggestionTypeEnum type) {
+        this.current = current;
+        this.suggested = suggested;
+        this.type = type;
     }
 
     public SuggestionNode getCurrent() {
@@ -31,5 +39,13 @@ public class Suggestion {
 
     public void setSuggested(SuggestionNode suggested) {
         this.suggested = suggested;
+    }
+
+    public SuggestionTypeEnum getType() {
+        return type;
+    }
+
+    public void setType(SuggestionTypeEnum type) {
+        this.type = type;
     }
 }
