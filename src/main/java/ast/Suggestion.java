@@ -10,16 +10,26 @@ import java.util.Set;
 
 public class Suggestion {
 
-    List<Node> nodes = new ArrayList<>();
+    private SuggestionNode current;
+
+    private SuggestionNode suggested;
 
     public Suggestion() {
     }
 
-    public List<Node> getNodes() {
-        return nodes;
+    public SuggestionNode getCurrent() {
+        return current;
     }
 
-    public void setNodes(List<Node> nodes) {
-        this.nodes = nodes;
+    public void setCurrent(SuggestionNode current) {
+        this.current = current;
+    }
+
+    public SuggestionNode getSuggested() {
+        return suggested;
+    }
+
+    public void setSuggested(SuggestionNode suggested) {
+        this.suggested = suggested;
     }
 }
