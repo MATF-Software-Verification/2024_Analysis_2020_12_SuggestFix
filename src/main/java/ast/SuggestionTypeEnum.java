@@ -5,4 +5,5 @@ public enum SuggestionTypeEnum {
     VARIABLE_DEFINED_NOT_USED,
     PARAMETER_NOT_USED,
     REDUNDANT_INITIALIZATION,
+    WHILE_TO_FOR,
 }

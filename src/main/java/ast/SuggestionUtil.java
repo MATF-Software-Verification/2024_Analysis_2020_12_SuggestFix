@@ -32,6 +32,9 @@ public class SuggestionUtil {
                 case REDUNDANT_INITIALIZATION:
                     sb.append(redundantInitializationToString(suggestion));
                     break;
+                case WHILE_TO_FOR:
+                    sb.append(whileToForLoop(suggestion));
+                    break;
             }
             sb.append(colorCode.getSuggestionColor(suggestion.getType()));
 
@@ -86,6 +89,25 @@ public class SuggestionUtil {
                 .append("]\t")
                 .append(suggestion.getSuggested().getCode())
                 .append("\n")
+                .toString();
+    }
+
+    private static String whileToForLoop(Suggestion suggestion) {
+        return new StringBuilder().append("Begin [")
+                .append(suggestion.getCurrent().getBegin())
+                .append("]\n")
+                .append(suggestion.getCurrent().getCode())
+                .append("\nEnd [")
+                .append(suggestion.getCurrent().getEnd())
+                .append("]\n")
+                .append("Can be replaced with:\n")
+                .append("Begin [")
+                .append(suggestion.getSuggested().getBegin())
+                .append("]\n")
+                .append(suggestion.getSuggested().getCode())
+                .append("\nEnd [")
+                .append(suggestion.getSuggested().getEnd())
+                .append("]\n")
                 .toString();
     }
 

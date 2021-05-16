@@ -7,6 +7,7 @@ import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.Statement;
+import com.github.javaparser.ast.stmt.WhileStmt;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 import java.util.Optional;
@@ -25,6 +26,14 @@ public class ASTVisitor extends VoidVisitorAdapter<Void> {
                 if (statement.isExpressionStmt()) {
                     ExpressionStmt expressionStmt = (ExpressionStmt) statement;
                     SuggestionIdentifiersAndAssignments.mergeInitializationAndAssignment(statement, expressionStmt, key);
+                }
+
+                if (statement.isWhileStmt()) {
+                    WhileStmt whileStatement = (WhileStmt) statement;
+                    new SuggestionWhileToFor().changeWhileToForLoop(whileStatement);
+                } else if (statement.isExpressionStmt()) {
+                    ExpressionStmt expressionStmt = (ExpressionStmt) statement;
+                    SuggestionWhileToFor.setVariableValue(expressionStmt);
                 }
             }
             //Suggestion defined not used (for variables)
@@ -56,9 +65,9 @@ public class ASTVisitor extends VoidVisitorAdapter<Void> {
     }
 
     @Override
-    public void visit(FieldDeclaration n, Void arg) {
-        super.visit(n ,arg);
+    public void visit(FieldDeclaration fieldDeclaration, Void arg) {
+        super.visit(fieldDeclaration, arg);
 
-        new SuggestionRedundantFieldInitialization().removeRedundantFieldInitialization(n);
+        new SuggestionRedundantFieldInitialization().removeRedundantFieldInitialization(fieldDeclaration);
     }
 }

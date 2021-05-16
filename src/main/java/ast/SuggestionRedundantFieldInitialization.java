@@ -1,6 +1,5 @@
 package ast;
 
-import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 
@@ -8,8 +7,8 @@ import java.util.ArrayList;
 
 public class SuggestionRedundantFieldInitialization {
 
-    SuggestionNode currentCode;
-    SuggestionNode suggestion;
+    private SuggestionNode currentCode;
+    private SuggestionNode suggestion;
 
     private void setCurrentCode(FieldDeclaration declaration) {
         this.currentCode = new SuggestionNode();
@@ -18,7 +17,7 @@ public class SuggestionRedundantFieldInitialization {
             this.currentCode.setBegin(String.valueOf(declaration.getBegin().get().line));
         }
         if (declaration.getEnd().isPresent()) {
-            this.currentCode.setEnd(String.valueOf(declaration.getBegin().get().line));
+            this.currentCode.setEnd(String.valueOf(declaration.getEnd().get().line));
         }
 
         this.currentCode.setCode(declaration.toString());

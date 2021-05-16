@@ -39,6 +39,9 @@ class HiWorld extends HelloWorld {
 
     @Override
     public void p2(int znj) {
-
+        int i = 0;
+        while (i < 10) {
+            i++;
+        }
     }
 }
