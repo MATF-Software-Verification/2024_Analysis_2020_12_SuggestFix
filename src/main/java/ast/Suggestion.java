@@ -1,14 +1,7 @@
 package ast;
 
 import com.github.javaparser.Position;
-import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.expr.SimpleName;
-
-import java.beans.Statement;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class Suggestion {
 
@@ -18,9 +11,6 @@ public class Suggestion {
     private SimpleName variableName;
     private Position variablePosition;
     private String methodName;
-
-    public Suggestion() {
-    }
 
     public Suggestion(SuggestionNode current, SuggestionNode suggested, SuggestionTypeEnum type) {
         this.current = current;

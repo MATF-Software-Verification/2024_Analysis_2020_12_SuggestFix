@@ -1,14 +1,6 @@
 package ast;
 
-import com.github.javaparser.Position;
-import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.expr.AssignExpr;
-import com.github.javaparser.ast.expr.NameExpr;
-import com.github.javaparser.ast.expr.SimpleName;
-import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.ast.stmt.ExpressionStmt;
-import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.utils.Pair;
 
 import java.util.ArrayList;
@@ -25,7 +17,6 @@ public class SuggestionUtil {
     private static String toString(List<Suggestion> suggestions) {
         StringBuilder sb = new StringBuilder();
         for (var suggestion : suggestions) {
-//            sb.append(suggestion.getType().toString()).append(": ");
             switch (suggestion.getType()) {
                 case IDENTIFIER_ASSIGNMENT:
                     sb.append(identifierAssignmentToString(suggestion));
@@ -36,7 +27,12 @@ public class SuggestionUtil {
                 case PARAMETER_NOT_USED:
                     sb.append(parameterNotUsed(suggestion));
                     break;
+                case REDUNDANT_INITIALIZATION:
+                    sb.append(redundantInitializationToString(suggestion));
+                    break;
             }
+
+            sb.append("\n");
         }
         return sb.toString();
     }
@@ -72,6 +68,22 @@ public class SuggestionUtil {
                 "-> can be removed\n";
     }
 
+    private static String redundantInitializationToString(Suggestion suggestion) {
+        return new StringBuilder("Redundant initialization:\n")
+                .append("[")
+                .append(suggestion.getCurrent().getBegin())
+                .append("]\t")
+                .append(suggestion.getCurrent().getCode())
+                .append("\n")
+                .append("Can be removed and replaced with:\n")
+                .append("[")
+                .append(suggestion.getCurrent().getBegin())
+                .append("]\t")
+                .append(suggestion.getSuggested().getCode())
+                .append("\n")
+                .toString();
+    }
+
     public static String printSuggestions() {
         return toString(suggestions);
     }
@@ -84,7 +96,7 @@ public class SuggestionUtil {
         else {
             addBlockToMap(n, new Pair<>(key, false));
         }
-        if(blockStmtMap.containsKey(key)){
+        if (blockStmtMap.containsKey(key)) {
             addBlockToMap(n, new Pair<>(key, true));
         }
         else {
@@ -97,7 +109,7 @@ public class SuggestionUtil {
     }
 
     public static void addBlockToMap(BlockStmt n, Pair<String, Boolean> key) {
-        if(key.b) {
+        if (key.b) {
             SuggestionUtil.blockStmtMap.get(key.a);
         }
         else {

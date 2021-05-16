@@ -1,6 +1,10 @@
 package examples;
 
 public class HelloWorld {
+
+    private static String i = null;
+    private boolean t = false;
+
     public static void main(String[] args) {
         int x;
         int z = 2;
@@ -30,6 +34,9 @@ public class HelloWorld {
 }
 
 class HiWorld extends HelloWorld {
+
+    private final int i = 1;
+
     @Override
     public void p2(int znj) {
 

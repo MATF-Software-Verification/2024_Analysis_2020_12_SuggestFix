@@ -1,10 +1,9 @@
 package ast;
 
-import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
-import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.Statement;
@@ -54,5 +53,12 @@ public class ASTVisitor extends VoidVisitorAdapter<Void> {
         BlockStmt blockStmt = body.orElse(new BlockStmt());
         NodeList<Statement> statements = blockStmt.getStatements();
         SuggestionDefinedNotUsed.checkIfMethodParameterIsNotUsed(parameters, statements, methodName);
+    }
+
+    @Override
+    public void visit(FieldDeclaration n, Void arg) {
+        super.visit(n ,arg);
+
+        new SuggestionRedundantFieldInitialization().removeRedundantFieldInitialization(n);
     }
 }
