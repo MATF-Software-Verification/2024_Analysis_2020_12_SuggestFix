@@ -13,10 +13,12 @@ public class SuggestionUtil {
     public static List<Suggestion> suggestions = new ArrayList<>();
     public static Map<String, SuggestionIdentifiersAndAssignments> identifiersAndAssignments = new HashMap<>();
     public static Map<String, BlockStmt> blockStmtMap = new HashMap<>();
+    public static SuggestionColorCode colorCode = SuggestionColorCode.getInstance();
 
     private static String toString(List<Suggestion> suggestions) {
         StringBuilder sb = new StringBuilder();
         for (var suggestion : suggestions) {
+            sb.append(colorCode.getSuggestionColor(suggestion.getType()));
             switch (suggestion.getType()) {
                 case IDENTIFIER_ASSIGNMENT:
                     sb.append(identifierAssignmentToString(suggestion));
@@ -31,9 +33,12 @@ public class SuggestionUtil {
                     sb.append(redundantInitializationToString(suggestion));
                     break;
             }
+            sb.append(colorCode.getSuggestionColor(suggestion.getType()));
 
             sb.append("\n");
         }
+
+        sb.append(colorCode.resetColorCode());
         return sb.toString();
     }
 
