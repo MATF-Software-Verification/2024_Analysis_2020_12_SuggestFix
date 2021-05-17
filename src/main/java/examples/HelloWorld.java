@@ -1,5 +1,10 @@
 package examples;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 public class HelloWorld {
 
     private static String i = null;
@@ -24,12 +29,37 @@ public class HelloWorld {
         x = z + 3;
         proba(1, 21, 3.2);
     }
-    public static void proba(int p, float q, double r) {
-        float s = p + q * 2;
+
+    public static float proba(int p, float q, double r) {
+        float s = 10;
+        double qp = 12.2;
+        int pst;
+        return p + q * s;
     }
 
     public void p2(int znj) {
 
+    }
+
+    public LocalDate getBirthDate() {
+        LocalDate birthDate = LocalDate.of(5, 5, 5);
+        return birthDate;
+    }
+
+    private int a;
+    private List<Integer> articles;
+    public List<Integer> getArticles() {
+        List<Integer> as = new ArrayList<>(3), bs = new ArrayList<>(2);
+        as = null;
+        return as;
+    }
+
+    public Optional<List<Integer>> getAs() {
+        return Optional.empty(); // return null
+    }
+
+    private int retA() {
+        return a;
     }
 }
 

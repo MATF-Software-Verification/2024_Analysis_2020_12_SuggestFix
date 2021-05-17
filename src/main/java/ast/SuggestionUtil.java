@@ -35,6 +35,9 @@ public class SuggestionUtil {
                 case WHILE_TO_FOR:
                     sb.append(whileToForLoop(suggestion));
                     break;
+                case VARIABLE_CAN_BE_NULL:
+                    sb.append(optionalNotNull(suggestion));
+                    break;
             }
             sb.append(colorCode.getSuggestionColor(suggestion.getType()));
 
@@ -109,6 +112,14 @@ public class SuggestionUtil {
                 .append(suggestion.getSuggested().getEnd())
                 .append("]\n")
                 .toString();
+    }
+
+    private static String optionalNotNull(Suggestion suggestion) {
+        return "Change type of method: '" + suggestion.getMethodName() + "' on line: " +
+                suggestion.getMethodDeclarationLine() +
+                " from: '" + suggestion.getOldType().toString() + "' to: '" + suggestion.getNewType() + "'\n" +
+                "Change return statement '" + suggestion.getRtrnStmt() + "' on line: " + suggestion.getReturnStmtLine() +
+                " to: '" + suggestion.getNewReturnString() + ";'\n";
     }
 
     public static String printSuggestions() {
