@@ -24,6 +24,7 @@ public class SuggestionColorCode {
         suggestionColor.put(SuggestionTypeEnum.REDUNDANT_INITIALIZATION, ANSI_BLUE);
         suggestionColor.put(SuggestionTypeEnum.WHILE_TO_FOR, ANSI_PURPLE);
         suggestionColor.put(SuggestionTypeEnum.VARIABLE_CAN_BE_NULL, ANSI_CYAN);
+        suggestionColor.put(SuggestionTypeEnum.EXCEPTION_SPLIT, ANSI_WHITE);
     }
 
     public static SuggestionColorCode getInstance() {

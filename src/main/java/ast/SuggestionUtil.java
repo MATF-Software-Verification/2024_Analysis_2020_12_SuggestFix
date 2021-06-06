@@ -38,6 +38,9 @@ public class SuggestionUtil {
                 case VARIABLE_CAN_BE_NULL:
                     sb.append(optionalNotNull(suggestion));
                     break;
+                case EXCEPTION_SPLIT:
+                    sb.append(splitExceptionsToString(suggestion));
+                    break;
             }
             sb.append(colorCode.getSuggestionColor(suggestion.getType()));
 
@@ -81,6 +84,22 @@ public class SuggestionUtil {
 
     private static String redundantInitializationToString(Suggestion suggestion) {
         return new StringBuilder("Redundant initialization:\n")
+                .append("[")
+                .append(suggestion.getCurrent().getBegin())
+                .append("]\t")
+                .append(suggestion.getCurrent().getCode())
+                .append("\n")
+                .append("Can be removed and replaced with:\n")
+                .append("[")
+                .append(suggestion.getCurrent().getBegin())
+                .append("]\t")
+                .append(suggestion.getSuggested().getCode())
+                .append("\n")
+                .toString();
+    }
+
+    private static String splitExceptionsToString(Suggestion suggestion) {
+        return new StringBuilder("Split exceptions:\n")
                 .append("[")
                 .append(suggestion.getCurrent().getBegin())
                 .append("]\t")

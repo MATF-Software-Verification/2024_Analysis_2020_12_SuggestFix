@@ -29,7 +29,9 @@ public class ASTVisitor extends VoidVisitorAdapter<Void> {
                 if (statement.isWhileStmt()) {
                     WhileStmt whileStatement = (WhileStmt) statement;
                     new SuggestionWhileToFor().changeWhileToForLoop(whileStatement);
-                } else if (statement.isExpressionStmt()) {
+                }
+
+                else if (statement.isExpressionStmt()) {
                     ExpressionStmt expressionStmt = (ExpressionStmt) statement;
                     SuggestionWhileToFor.setVariableValue(expressionStmt);
                 }
@@ -74,5 +76,12 @@ public class ASTVisitor extends VoidVisitorAdapter<Void> {
         super.visit(fieldDeclaration, arg);
 
         new SuggestionRedundantFieldInitialization().removeRedundantFieldInitialization(fieldDeclaration);
+    }
+
+    @Override
+    public void visit(TryStmt tryStatement, Void arg) {
+        super.visit(tryStatement, arg);
+        new SuggestionSplitExceptions().splitExceptions(tryStatement);
+
     }
 }

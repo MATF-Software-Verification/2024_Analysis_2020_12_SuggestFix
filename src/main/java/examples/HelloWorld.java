@@ -1,5 +1,7 @@
 package examples;
 
+import java.io.File;
+import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +30,14 @@ public class HelloWorld {
         }
         x = z + 3;
         proba(1, 21, 3.2);
+
+        try {
+            URL url = new URL("www.google.rs");
+            File file = new File("./examples/HelloWorld.java");
+        }
+        catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 
     public static float proba(int p, float q, double r) {
