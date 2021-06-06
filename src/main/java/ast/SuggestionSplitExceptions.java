@@ -1,5 +1,7 @@
 package ast;
 
+import com.github.javaparser.ast.expr.AssignExpr;
+import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
@@ -57,7 +59,14 @@ public class SuggestionSplitExceptions {
         // For each statement, check if its expression (if&for cannot make exceptions)
         for (var statement: statements.getStatements()) {
             if(statement.isExpressionStmt()) {
-                var expr = ((ExpressionStmt)statement).getExpression();
+                Expression expr;
+                if(statement.asExpressionStmt().getExpression().isVariableDeclarationExpr()) {
+                    var variables = statement.asExpressionStmt().getExpression().asVariableDeclarationExpr().getVariables();
+                    expr = variables.get(0).getInitializer().get();
+                }
+                else {
+                    expr = statement.asExpressionStmt().getExpression();
+                }
 
                 // Exceptions made by constructor calls using new
                 if(expr.isObjectCreationExpr()) {

@@ -2,8 +2,11 @@ package examples;
 
 import java.io.File;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +34,7 @@ public class HelloWorld {
         x = z + 3;
         proba(1, 21, 3.2);
 
+        // SplitException - EXAMPLE
         try {
             URL url = new URL("www.google.rs");
             File file = new File("./examples/HelloWorld.java");
@@ -38,6 +42,17 @@ public class HelloWorld {
         catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
+
+        String dateStr = "2011-11-19";
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            dateFormat.parse(dateStr);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     public static float proba(int p, float q, double r) {
