@@ -1,11 +1,9 @@
 package ast;
 
-import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.TryStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 
@@ -38,8 +36,12 @@ public class SuggestionSplitExceptions {
     private String createSuggestedCodeString(List<String> exceptions) {
         StringBuilder result = new StringBuilder();
         for (String exception: exceptions) {
-            result.append(exception);
             result.append(System.getProperty("line.separator"));
+            result.append("catch(" + exception + " ex) {");
+            result.append(System.getProperty("line.separator"));
+            result.append(". . . ");
+            result.append(System.getProperty("line.separator"));
+            result.append("}");
         }
         return result.toString();
     }

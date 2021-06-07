@@ -37,7 +37,6 @@ public class HelloWorld {
         // SplitException - EXAMPLE
         try {
             URL url = new URL("www.google.rs");
-            File file = new File("./examples/HelloWorld.java");
         }
         catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
