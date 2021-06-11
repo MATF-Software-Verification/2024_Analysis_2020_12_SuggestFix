@@ -18,8 +18,8 @@ public class ASTUtil {
         return null;
     }
 
-    public static void traverseTree(CompilationUnit cu) {
-        ASTVisitor visitor = new ASTVisitor();
+    public static void traverseTree(CompilationUnit cu, SuggestionTypeEnum[] splitSuggestions) {
+        ASTVisitor visitor = new ASTVisitor(splitSuggestions);
         cu.accept(visitor, null);
     }
 
