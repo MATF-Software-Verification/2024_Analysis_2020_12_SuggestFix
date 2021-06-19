@@ -3,7 +3,6 @@ import ast.SuggestionTypeEnum;
 import ast.SuggestionUtil;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 
 import static ast.SuggestionTypeEnum.*;
 import static java.lang.System.exit;

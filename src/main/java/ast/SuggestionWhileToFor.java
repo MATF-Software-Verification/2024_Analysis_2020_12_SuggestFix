@@ -10,6 +10,7 @@ import com.github.javaparser.ast.stmt.WhileStmt;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class SuggestionWhileToFor {
 
@@ -22,7 +23,7 @@ public class SuggestionWhileToFor {
     private void setCurrentCode(String iteratorId, WhileStmt whileStatement) {
         this.currentCode = new SuggestionNode();
 
-        if (assignBegin != null) {
+        if (!assignBegin.isEmpty()) {
             this.currentCode.setBegin(assignBegin.get(iteratorId));
         }
         if (whileStatement.getEnd().isPresent()) {
@@ -107,7 +108,7 @@ public class SuggestionWhileToFor {
         return id;
     }
 
-    private Statement checkStatementIfChangeExpr(Statement statement, String iteratorId) {
+    private boolean checkStatementIfChangeExpr(Statement statement, String iteratorId) {
         if (statement.isExpressionStmt()) {
             ExpressionStmt expressionStmt = (ExpressionStmt) statement;
             Expression expression = expressionStmt.getExpression();
@@ -116,37 +117,37 @@ public class SuggestionWhileToFor {
                 var unaryExpression = (UnaryExpr) expression;
                 if (unaryExpression.getExpression().isNameExpr()) {
                     var variable = unaryExpression.getExpression().asNameExpr().getName().toString();
-                    if (iteratorId.equals(variable)) {
-                        return expressionStmt;
-                    }
+                    return iteratorId.equals(variable);
                 }
             } else if (expression.isAssignExpr()) {
                 if (expression.isNameExpr()) {
                     var variable = expression.asNameExpr().getName().toString();
-                    if (iteratorId.equals(variable)) {
-                        return expressionStmt;
-                    }
+                    return iteratorId.equals(variable);
                 }
             }
         }
 
-        return null;
+        return false;
     }
 
-    private Statement findIteratorChangeExpr(Statement statement, String iteratorId) {
+    private Optional<Statement> findIteratorChangeExpr(Statement statement, String iteratorId) {
         if (statement.isBlockStmt()) {
             var blockStatement = (BlockStmt) statement;
             var statements = blockStatement.getStatements();
             if (statements.isNonEmpty()) {
                 for (var stmt : statements) {
-                    return this.checkStatementIfChangeExpr(stmt, iteratorId);
+                    if (checkStatementIfChangeExpr(stmt, iteratorId)) {
+                        return Optional.of(stmt);
+                    }
                 }
             }
         } else {
-            return this.checkStatementIfChangeExpr(statement, iteratorId);
+            if (checkStatementIfChangeExpr(statement, iteratorId)) {
+                return Optional.of(statement);
+            }
         }
 
-        return null;
+        return Optional.empty();
     }
 
     private String createSuggestedCodeString(String assign, String cond, String update, String body) {
@@ -159,7 +160,24 @@ public class SuggestionWhileToFor {
             var statements = blockStatement.getStatements();
             var statementsCopy = new NodeList<Statement>(statements);
             statementsCopy.removeIf(statement -> statement == updateStatement);
-            return "{" + (statementsCopy.size() > 0? statementsCopy.toString() : "") + "\n}";
+
+            StringBuilder blockStringBuilder = new StringBuilder("{");
+            if (statementsCopy.size() > 0) {
+                blockStringBuilder.append("\n");
+            }
+            var iterator = statementsCopy.iterator();
+            while (iterator.hasNext()) {
+                blockStringBuilder.append("\t");
+                blockStringBuilder.append(iterator.next().toString());
+                if (iterator.hasNext()) {
+                    blockStringBuilder.append("\n");
+                }
+            }
+            if (statementsCopy.size() > 0) {
+                blockStringBuilder.append("\n");
+            }
+            blockStringBuilder.append("}");
+            return blockStringBuilder.toString();
         } else {
             return "{}";
         }
@@ -170,21 +188,25 @@ public class SuggestionWhileToFor {
         if (iteratorId != null) {
             String iteratorAssignCode = getIteratorAssignCode(iteratorId);
             String condition = whileStatement.getCondition().toString();
-            Statement iteratorUpdateCode = findIteratorChangeExpr(whileStatement.getBody(), iteratorId);
-            String bodyCode = this.getLoopBodyUpdated(whileStatement.getBody(), iteratorUpdateCode);
 
-            this.setCurrentCode(iteratorId, whileStatement);
-            this.setSuggestion(this.createSuggestedCodeString(
-                    iteratorAssignCode,
-                    condition,
-                    iteratorUpdateCode.asExpressionStmt().getExpression().toString(),
-                    bodyCode
-            ));
-            SuggestionUtil.suggestions.add(new Suggestion(
-                    this.currentCode,
-                    this.suggestion,
-                    SuggestionTypeEnum.WHILE_TO_FOR)
-            );
+            var iteratorChangeExpr= findIteratorChangeExpr(whileStatement.getBody(), iteratorId);
+            if (iteratorChangeExpr.isPresent()) {
+                Statement iteratorUpdateCode = iteratorChangeExpr.get();
+                String bodyCode = getLoopBodyUpdated(whileStatement.getBody(), iteratorUpdateCode);
+
+                setCurrentCode(iteratorId, whileStatement);
+                setSuggestion(createSuggestedCodeString(
+                        iteratorAssignCode,
+                        condition,
+                        iteratorUpdateCode.asExpressionStmt().getExpression().toString(),
+                        bodyCode
+                ));
+                SuggestionUtil.suggestions.add(new Suggestion(
+                        this.currentCode,
+                        this.suggestion,
+                        SuggestionTypeEnum.WHILE_TO_FOR)
+                );
+            }
         }
     }
 }
