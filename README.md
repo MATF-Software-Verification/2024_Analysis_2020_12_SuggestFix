@@ -9,7 +9,7 @@ mogu zameniti sintaksnim konstruktima koji su poželjniji.
 
 - Za kompilaciju je preporučeno razvojno okruženje IntelliJIDEA. Projekat koristi Gradle sistem za kompilaciju, pa se sve potrebne biblioteke automatski preuzimaju. Projekat se kompilira i pokreće kao standardni IntelliJIDEA projekat.
 
-- Izvršiva verzija programa je .jar datoteka, za čije izvršavanje je potrebna Java virtuelna mašina. Najnovija verzija može biti preuzeta sa strane u `Releases` sekciji.
+- Izvršiva verzija programa je .jar datoteka, za čije izvršavanje je potrebna Java virtuelna mašina. Najnovija verzija može biti preuzeta sa strane u [`Releases`](https://github.com/MATF-Software-Verification/2020_12_SuggestFix/releases) sekciji.
 
 -  Argumenti kojima se kontroliše izvršavanje:
 ```
@@ -32,6 +32,10 @@ Argument -s nije obavezan i ukoliko se ne navede biće ispisane sve dostupne sug
 ```
 java -jar SuggestFix.jar -f HelloWorld
 ```
+
+## Primeri upotrebe
+
+- Primeri korišćenja programa mogu se pronaći u [`Wiki`](https://github.com/MATF-Software-Verification/2020_12_SuggestFix/wiki) stranicama.
 
 ## Članovi tima
 
