@@ -98,4 +98,11 @@ class HiWorld extends HelloWorld {
             i++;
         }
     }
+
+    public static void main(String[] args) {
+        String example = "Dots: ";
+        while (example.length() < 20) {
+            example = example + ".";
+        }
+    }
 }
