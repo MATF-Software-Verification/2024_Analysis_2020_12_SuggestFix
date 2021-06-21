@@ -30,7 +30,6 @@ public class SuggestionReturnOptionalNotNull extends SuggestionNode {
                     if (ex.isMethodCallExpr()) {
                         return;
                     }
-                    List<VariableDeclarator> vd = ex.findAll(VariableDeclarator.class);
                     List<SimpleName> names = ex.findAll(SimpleName.class);
                     for (var name : names) {
                         boolean check = checkIfCanBeNull(name, statements, parameters, cu);

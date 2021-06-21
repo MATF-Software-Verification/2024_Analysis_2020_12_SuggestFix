@@ -12,15 +12,16 @@ public class Main {
 
     public static void main(String[] args) {
 
-        var examplePath = String.join(File.separator, new String[]{".", "src", "main", "java", "examples", "HelloWorld.java"});
-        String file;
-        String wantedSuggestions;
+        var exampleFolder = String.join(File.separator, new String[]{".", "src", "main", "java", "examples"});
+        var examplePath = String.join(File.separator, new String[]{exampleFolder, "HelloWorld.java"});
+
+        String file, wantedSuggestions;
         SuggestionTypeEnum[] wantedSuggestionsArray = new SuggestionTypeEnum[0];
 
         if (args.length == 4) {
             if (args[0].equals("-f") && args[2].equals("-s")) {
                 file = args[1] + ".java";
-                examplePath = String.join(File.separator, new String[]{".", "src", "main", "java", "examples", file});
+                examplePath = String.join(File.separator, new String[]{exampleFolder, file});
 
                 wantedSuggestions = args[3];
                 wantedSuggestionsArray = splitSuggestions(wantedSuggestions);
@@ -33,7 +34,7 @@ public class Main {
         if (args.length == 2) {
             if (args[0].equals("-f")) {
                 file = args[1] + ".java";
-                examplePath = String.join(File.separator, new String[]{".", "src", "main", "java", "examples", file});
+                examplePath = String.join(File.separator, new String[]{exampleFolder, file});
             }
             else if (args[0].equals("-s")) {
                 wantedSuggestions = args[1];
@@ -54,14 +55,19 @@ public class Main {
             wantedSuggestionsArray[4] = WHILE_TO_FOR;
             wantedSuggestionsArray[5] = VARIABLE_CAN_BE_NULL;
             wantedSuggestionsArray[6] = EXCEPTION_SPLIT;
+            wantedSuggestionsArray[7] = STRING_CONCATENATION;
         }
 
         File fileToReadFrom = new File(examplePath);
-
         if (fileToReadFrom.exists()) {
             var compilationUnit = ASTUtil.getCompilationUnit(fileToReadFrom);
-            ASTUtil.traverseTree(compilationUnit, wantedSuggestionsArray);
-            System.out.println(SuggestionUtil.printSuggestions());
+            if (compilationUnit != null) {
+                ASTUtil.traverseTree(compilationUnit, wantedSuggestionsArray);
+                System.out.println(SuggestionUtil.printSuggestions());
+            } else {
+                System.out.println("An error occurred while traversing the tree");
+                printUsageAndExit();
+            }
         }
         else {
             System.out.println("File with given name does not exist");
@@ -73,14 +79,15 @@ public class Main {
         System.out.println("Arguments usage: fileName [-f fileNameToAnalyze(has to be in 'examples' folder)] " +
                 "[-s wantedSuggestions (\ni - IDENTIFIER_ASSIGNMENT," +
                 "\nv - VARIABLE_DEFINED_NOT_USED, \np - PARAMETER_NOT_USED, \nr - REDUNDANT_INITIALIZATION, " +
-                "\nw - WHILE_TO_FOR, \nn - VARIABLE_CAN_BE_NULL, \ne - EXCEPTION_SPLIT)]");
+                "\nw - WHILE_TO_FOR, \nn - VARIABLE_CAN_BE_NULL, \ne - EXCEPTION_SPLIT " +
+                "\nc - STRING_CONCATENATION\n)]");
         exit(0);
     }
 
     private static SuggestionTypeEnum[] splitSuggestions(String suggestions) {
         SuggestionTypeEnum[] suggestionsArray = new SuggestionTypeEnum[suggestions.length()];
-        int i = 0;
 
+        int i = 0;
         for (char suggestion: suggestions.toCharArray()) {
             switch (suggestion) {
                 case 'i':
@@ -103,6 +110,9 @@ public class Main {
                     break;
                 case 'e':
                     suggestionsArray[i] = EXCEPTION_SPLIT;
+                    break;
+                case 'c':
+                    suggestionsArray[i] = STRING_CONCATENATION;
                     break;
                 default:
                     printUsageAndExit();

@@ -69,8 +69,8 @@ public class SuggestionRedundantFieldInitialization {
                     case "0":
                     case "false":
                     case "null":
-                        this.setCurrentCode(declaration);
-                        this.setSuggestion(this.createSuggestedCodeString(declaration));
+                        setCurrentCode(declaration);
+                        setSuggestion(this.createSuggestedCodeString(declaration));
                         SuggestionUtil.suggestions.add(new Suggestion(
                                 this.currentCode,
                                 this.suggestion,

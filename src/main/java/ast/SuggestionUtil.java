@@ -41,6 +41,9 @@ public class SuggestionUtil {
                 case EXCEPTION_SPLIT:
                     sb.append(splitExceptionsToString(suggestion));
                     break;
+                case STRING_CONCATENATION:
+                    sb.append(stringConcatenationToString(suggestion));
+                    break;
             }
             sb.append(colorCode.getSuggestionColor(suggestion.getType()));
 
@@ -139,6 +142,25 @@ public class SuggestionUtil {
                 " from: '" + suggestion.getOldType().toString() + "' to: '" + suggestion.getNewType() + "'\n" +
                 "Change return statement '" + suggestion.getRtrnStmt() + "' on line: " + suggestion.getReturnStmtLine() +
                 " to: '" + suggestion.getNewReturnString() + ";'\n";
+    }
+
+    private static String stringConcatenationToString(Suggestion suggestion) {
+        return new StringBuilder().append("Begin [")
+                .append(suggestion.getCurrent().getBegin())
+                .append("]\n")
+                .append(suggestion.getCurrent().getCode())
+                .append("\nEnd [")
+                .append(suggestion.getCurrent().getEnd())
+                .append("]\n")
+                .append("Can be replaced with:\n")
+                .append("Begin [")
+                .append(suggestion.getSuggested().getBegin())
+                .append("]\n")
+                .append(suggestion.getSuggested().getCode())
+                .append("\nEnd [")
+                .append(suggestion.getSuggested().getEnd())
+                .append("]\n")
+                .toString();
     }
 
     public static String printSuggestions() {

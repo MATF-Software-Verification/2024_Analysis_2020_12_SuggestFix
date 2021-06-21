@@ -85,7 +85,7 @@ public class SuggestionSplitExceptions {
 
                 // Exceptions made by method calls
                 if(expr.isMethodCallExpr()) {
-                    var methodCall = (MethodCallExpr)expr;
+                    var methodCall = expr.asMethodCallExpr();
                     switch (methodCall.getNameAsString()) {
                         case "sleep":
                             exceptions.add("InterruptedException");

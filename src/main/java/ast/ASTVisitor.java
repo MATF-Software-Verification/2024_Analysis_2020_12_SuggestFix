@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public class ASTVisitor extends VoidVisitorAdapter<Void> {
 
-    private SuggestionTypeEnum[] suggestions;
+    private final SuggestionTypeEnum[] suggestions;
 
     public ASTVisitor(SuggestionTypeEnum[] suggestions) {
         this.suggestions = suggestions;
@@ -26,7 +26,6 @@ public class ASTVisitor extends VoidVisitorAdapter<Void> {
 
         if (n.getStatements().isNonEmpty()) {
             NodeList<Statement> statements = n.getStatements();
-            //Suggestion identifiers and assignments
             for (var statement : statements) {
                 if (doesSuggestionContains(SuggestionTypeEnum.IDENTIFIER_ASSIGNMENT)) {
                     if (statement.isExpressionStmt()) {
@@ -44,8 +43,17 @@ public class ASTVisitor extends VoidVisitorAdapter<Void> {
                         SuggestionWhileToFor.setVariableValue(expressionStmt);
                     }
                 }
+
+                if (doesSuggestionContains(SuggestionTypeEnum.STRING_CONCATENATION)) {
+                    if (statement.isWhileStmt() || statement.isForStmt() || statement.isForEachStmt()) {
+                        new SuggestionStringConcatenation().replaceStringConcatenationWithStringBuilder(statement);
+                    } else if (statement.isExpressionStmt()) {
+                        ExpressionStmt expressionStmt = (ExpressionStmt) statement;
+                        SuggestionStringConcatenation.rememberStringVariables(expressionStmt);
+                    }
+                }
             }
-            //Suggestion defined not used (for variables)
+
             if (doesSuggestionContains(SuggestionTypeEnum.VARIABLE_DEFINED_NOT_USED)) {
                 SuggestionDefinedNotUsed.checkIfVariableIsDeclaredButNotUsed(statements);
             }
@@ -58,15 +66,15 @@ public class ASTVisitor extends VoidVisitorAdapter<Void> {
 
         if (doesSuggestionContains(SuggestionTypeEnum.PARAMETER_NOT_USED)) {
             String methodName = n.getName().asString();
-            //We won't check out main method, because it has to have args as parameter
+            // We won't check out main method, because it has to have args as parameter
             if (methodName.equals("main")) {
                 return;
             }
 
-            //If method is overriding another method we won't check if all parameters are used,
-            //because it can happened that some parameter is used in super class method
+            // If method is overriding another method we won't check if all parameters are used,
+            // because it can happened that some parameter is used in super class method
             if (n.getAnnotationByName("Override").isEmpty()) {
-                //Suggestion defined not used (for method parameters)
+                // Suggestion defined not used (for method parameters)
                 NodeList<Parameter> parameters = n.getParameters();
                 Optional<BlockStmt> body = n.getBody();
                 BlockStmt blockStmt = body.orElse(new BlockStmt());
@@ -75,7 +83,7 @@ public class ASTVisitor extends VoidVisitorAdapter<Void> {
             }
         }
 
-        //Suggestion return optional not null
+        // Suggestion return optional not null
         if (doesSuggestionContains(SuggestionTypeEnum.VARIABLE_CAN_BE_NULL)) {
             Optional<BlockStmt> body = n.getBody();
             BlockStmt blockStmt = body.orElse(new BlockStmt());

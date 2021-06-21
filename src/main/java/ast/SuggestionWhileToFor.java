@@ -30,10 +30,7 @@ public class SuggestionWhileToFor {
             this.currentCode.setEnd(String.valueOf(whileStatement.getEnd().get().line));
         }
 
-        String currentCode = new StringBuilder(variableAssign.get(iteratorId))
-                .append("\n...\n")
-                .append(whileStatement.toString())
-                .toString();
+        String currentCode = variableAssign.get(iteratorId) + "\n...\n" + whileStatement;
         this.currentCode.setCode(currentCode);
     }
 
@@ -158,7 +155,7 @@ public class SuggestionWhileToFor {
         if (body.isBlockStmt()) {
             var blockStatement = (BlockStmt) body;
             var statements = blockStatement.getStatements();
-            var statementsCopy = new NodeList<Statement>(statements);
+            var statementsCopy = new NodeList<>(statements);
             statementsCopy.removeIf(statement -> statement == updateStatement);
 
             StringBuilder blockStringBuilder = new StringBuilder("{");
@@ -183,6 +180,13 @@ public class SuggestionWhileToFor {
         }
     }
 
+    /**
+     * for (int i = 1; i < n; i++) is a programming idiom, which is the usual way to code a task and
+     * therefore is recommended to write a loop in this way if it is possible. One of the reasons
+     * behind this is readability and the fact that with for loop you can manage to keep i within
+     * the scope of the loop instead of letting it escape to the rest of the code. Also with the
+     * use of for loop, you get the same results all wrapped up in just one line.
+     */
     public void changeWhileToForLoop(WhileStmt whileStatement) {
         String iteratorId = findIteratorId(whileStatement.getCondition());
         if (iteratorId != null) {
