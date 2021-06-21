@@ -55,7 +55,7 @@ public class SuggestionStringConcatenation extends SuggestionNode {
         return "StringBuilder builder = new StringBuilder("
                + id + ");\n"
                + createLoopCodeString(statement, loopStatement, value) + "\n"
-               + id + " = builder.toString()";
+               + id + " = builder.toString();";
     }
 
     private String createLoopCodeString(Statement statement, Statement loopStatement, String value) {
