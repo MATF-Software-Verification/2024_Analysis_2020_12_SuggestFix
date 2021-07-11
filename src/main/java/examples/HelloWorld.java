@@ -16,22 +16,22 @@ public class HelloWorld {
     private boolean t = false;
 
     public static void main(String[] args) {
-        int x;
         int z = 2;
         int y;
         int a, c;
         if (z == 2) {
-            int b;
             y = 2;
-            x = 3;
             z = 3 + 4;
+            int b;
+            b = 3;
         }
         if (z == 2) {
             y = 2;
-            x = 3;
             z = 3 + 4;
         }
-        x = z + 3;
+        int x; x = z + 3;
+        z = x + 2;
+        y = 5;
         proba(1, 21, 3.2);
 
         // SplitException - EXAMPLE

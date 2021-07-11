@@ -3,19 +3,16 @@ package ast;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.utils.Pair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SuggestionUtil {
 
     public static List<Suggestion> suggestions = new ArrayList<>();
     public static Map<String, SuggestionIdentifiersAndAssignments> identifiersAndAssignments = new HashMap<>();
-    public static Map<String, BlockStmt> blockStmtMap = new HashMap<>();
     public static SuggestionColorCode colorCode = SuggestionColorCode.getInstance();
 
     private static String toString(List<Suggestion> suggestions) {
+        suggestions.sort(Comparator.comparing(Suggestion::getType));
         StringBuilder sb = new StringBuilder();
         for (var suggestion : suggestions) {
             sb.append(colorCode.getSuggestionColor(suggestion.getType()));
@@ -55,7 +52,8 @@ public class SuggestionUtil {
     }
 
     private static String identifierAssignmentToString(Suggestion suggestion) {
-        return new StringBuilder().append("Begin [")
+        return new StringBuilder().append("Merge declaration and assignment:\n")
+                .append("Begin [")
                 .append(suggestion.getCurrent().getBegin())
                 .append("]\n")
                 .append(suggestion.getCurrent().getCode())
@@ -165,36 +163,5 @@ public class SuggestionUtil {
 
     public static String printSuggestions() {
         return toString(suggestions);
-    }
-
-    public static String getKey(BlockStmt n) {
-        String key = "";
-        if (n.getBegin().isPresent()) {
-           key = createKey(n.getBegin().get().line, n.getBegin().get().column);
-        }
-        else {
-            addBlockToMap(n, new Pair<>(key, false));
-        }
-        if (blockStmtMap.containsKey(key)) {
-            addBlockToMap(n, new Pair<>(key, true));
-        }
-        else {
-            addBlockToMap(n, new Pair<>(key, false));
-        }
-        return key;
-    }
-    public static String createKey(int line, int column) {
-        return "l" + line + "c" + column;
-    }
-
-    public static void addBlockToMap(BlockStmt n, Pair<String, Boolean> key) {
-        if (key.b) {
-            SuggestionUtil.blockStmtMap.get(key.a);
-        }
-        else {
-            if (!key.a.isEmpty()) {
-                SuggestionUtil.blockStmtMap.put(key.a, n);
-            }
-        }
     }
 }

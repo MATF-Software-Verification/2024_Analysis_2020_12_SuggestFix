@@ -15,7 +15,7 @@ public class SuggestionIdentifiersAndAssignments extends SuggestionNode {
 
     private String assignment;
 
-    private String blockId;
+    private boolean usedInOtherScope = false;
 
     public SuggestionIdentifiersAndAssignments() {
         super();
@@ -37,15 +37,15 @@ public class SuggestionIdentifiersAndAssignments extends SuggestionNode {
         this.assignment = assignment;
     }
 
-    public String getBlockId() {
-        return blockId;
+    public boolean isUsedInOtherScope() {
+        return usedInOtherScope;
     }
 
-    public void setBlockId(String blockId) {
-        this.blockId = blockId;
+    public void setUsedInOtherScope(boolean usedInOtherScope) {
+        this.usedInOtherScope = usedInOtherScope;
     }
 
-    public static void mergeInitializationAndAssignment(Statement statement, ExpressionStmt expressionStmt, String key) {
+    public static void mergeInitializationAndAssignment(Statement statement, ExpressionStmt expressionStmt) {
         SuggestionIdentifiersAndAssignments suggestion;
         SuggestionIdentifiersAndAssignments current;
         if (expressionStmt.getExpression().isVariableDeclarationExpr()) {
@@ -53,7 +53,7 @@ public class SuggestionIdentifiersAndAssignments extends SuggestionNode {
             for (VariableDeclarator variable : variableDeclarationExpr.getVariables()) {
                 if (variable.getInitializer().isEmpty()) {
                     String identifier = variable.getName().getIdentifier();
-                    if (!SuggestionUtil.identifiersAndAssignments.containsKey(key + identifier)) {
+                    if (!SuggestionUtil.identifiersAndAssignments.containsKey(identifier)) {
                         current = new SuggestionIdentifiersAndAssignments();
                         if (variable.getBegin().isPresent()) {
                             current.setBegin(String.valueOf(variable.getBegin().get().line));
@@ -65,7 +65,7 @@ public class SuggestionIdentifiersAndAssignments extends SuggestionNode {
                         current.setCode(statement.toString());
                         current.setInitialization(variable.getTypeAsString() + " " + variable.getNameAsString());
 
-                        SuggestionUtil.identifiersAndAssignments.put(key + identifier, current);
+                        SuggestionUtil.identifiersAndAssignments.put(identifier, current);
                     }
                 }
             }
@@ -75,25 +75,31 @@ public class SuggestionIdentifiersAndAssignments extends SuggestionNode {
             if (assignExpr.getTarget().isNameExpr()) {
                 NameExpr nameExpression = (NameExpr) assignExpr.getTarget();
                 String identifier = nameExpression.getName().getIdentifier();
-                if (SuggestionUtil.identifiersAndAssignments.containsKey(key + identifier)) {
-                    current = SuggestionUtil.identifiersAndAssignments.get(key + identifier);
+                if (SuggestionUtil.identifiersAndAssignments.containsKey(identifier)) {
+                    current = SuggestionUtil.identifiersAndAssignments.get(identifier);
                     if (Objects.nonNull(current)) {
-                        suggestion = new SuggestionIdentifiersAndAssignments();
-                        if (assignExpr.getBegin().isPresent()) {
-                            suggestion.setBegin(String.valueOf(assignExpr.getBegin().get().line));
+                        if (!current.isUsedInOtherScope()) {
+                            suggestion = new SuggestionIdentifiersAndAssignments();
+                            if (assignExpr.getBegin().isPresent()) {
+                                suggestion.setBegin(String.valueOf(assignExpr.getBegin().get().line));
+                            }
+                            if (assignExpr.getEnd().isPresent()) {
+                                suggestion.setEnd(String.valueOf(assignExpr.getBegin().get().line));
+                            }
+                            suggestion.setCode(current.getInitialization() + " = " + assignExpr.getValue().toString() + ";");
+                            SuggestionUtil.suggestions.add(new Suggestion(
+                                    current,
+                                    suggestion,
+                                    SuggestionTypeEnum.IDENTIFIER_ASSIGNMENT)
+                            );
                         }
-                        if (assignExpr.getEnd().isPresent()) {
-                            suggestion.setEnd(String.valueOf(assignExpr.getBegin().get().line));
-                        }
-                        suggestion.setCode(current.getInitialization() + " = " + assignExpr.getValue().toString() + ";");
-                        SuggestionUtil.suggestions.add(new Suggestion(
-                                current,
-                                suggestion,
-                                SuggestionTypeEnum.IDENTIFIER_ASSIGNMENT)
-                        );
+                    }
+                } else {
+                        current = new SuggestionIdentifiersAndAssignments();
+                        current.setUsedInOtherScope(true);
+                        SuggestionUtil.identifiersAndAssignments.put(identifier, current);
                     }
                 }
             }
         }
     }
-}

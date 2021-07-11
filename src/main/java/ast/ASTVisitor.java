@@ -9,6 +9,7 @@ import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Optional;
 
 public class ASTVisitor extends VoidVisitorAdapter<Void> {
@@ -22,7 +23,6 @@ public class ASTVisitor extends VoidVisitorAdapter<Void> {
     @Override
     public void visit(BlockStmt n, Void arg) {
         super.visit(n, arg);
-        String key = SuggestionUtil.getKey(n);
 
         if (n.getStatements().isNonEmpty()) {
             NodeList<Statement> statements = n.getStatements();
@@ -30,7 +30,7 @@ public class ASTVisitor extends VoidVisitorAdapter<Void> {
                 if (doesSuggestionContains(SuggestionTypeEnum.IDENTIFIER_ASSIGNMENT)) {
                     if (statement.isExpressionStmt()) {
                         ExpressionStmt expressionStmt = (ExpressionStmt) statement;
-                        SuggestionIdentifiersAndAssignments.mergeInitializationAndAssignment(statement, expressionStmt, key);
+                        SuggestionIdentifiersAndAssignments.mergeInitializationAndAssignment(statement, expressionStmt);
                     }
                 }
 
