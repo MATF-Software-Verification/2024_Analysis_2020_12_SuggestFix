@@ -44,6 +44,9 @@ public class SuggestionUtil {
                 case NESTED_IF_TO_SINGLE_IF:
                     sb.append(nestedIfToSingleIfToString(suggestion));
                     break;
+                case IF_ELSE_TO_TERNARY:
+                    sb.append(ifElseToTernaryToString(suggestion));
+                    break;
             }
             sb.append(colorCode.getSuggestionColor(suggestion.getType()));
 
@@ -182,7 +185,27 @@ public class SuggestionUtil {
                 .append(suggestion.getSuggested().getEnd())
                 .append("]\n")
                 .toString();
-}
+    }
+
+    private static String ifElseToTernaryToString(Suggestion suggestion) {
+        return new StringBuilder("Replace if-else with ternary operator:\n")
+                .append("Begin [")
+                .append(suggestion.getCurrent().getBegin())
+                .append("]\n")
+                .append(suggestion.getCurrent().getCode())
+                .append("\nEnd [")
+                .append(suggestion.getCurrent().getEnd())
+                .append("]\n")
+                .append("Can be replaced with:\n")
+                .append("Begin [")
+                .append(suggestion.getSuggested().getBegin())
+                .append("]\n")
+                .append(suggestion.getSuggested().getCode())
+                .append("\nEnd [")
+                .append(suggestion.getSuggested().getEnd())
+                .append("]\n")
+                .toString();
+    }
 
     public static String printSuggestions() {
         return toString(suggestions);

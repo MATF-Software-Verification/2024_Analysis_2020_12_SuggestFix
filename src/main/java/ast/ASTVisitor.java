@@ -61,6 +61,10 @@ public class ASTVisitor extends VoidVisitorAdapter<Void> {
             if (doesSuggestionContains(SuggestionTypeEnum.NESTED_IF_TO_SINGLE_IF)) {
                 SuggestionNestedIfToSingleIf.checkAndSuggestNestedIfToSingleIf(statements);
             }
+
+            if(doesSuggestionContains(SuggestionTypeEnum.IF_ELSE_TO_TERNARY)){
+                SuggestionIfElseToTernary.checkAndSuggestIfElseToTernary(statements);
+            }
         }
     }
 

@@ -57,6 +57,7 @@ public class Main {
             wantedSuggestionsArray[6] = EXCEPTION_SPLIT;
             wantedSuggestionsArray[7] = STRING_CONCATENATION;
             wantedSuggestionsArray[8] = NESTED_IF_TO_SINGLE_IF;
+            wantedSuggestionsArray[9] = IF_ELSE_TO_TERNARY;
         }
 
         File fileToReadFrom = new File(examplePath);
@@ -81,7 +82,7 @@ public class Main {
                 "[-s wantedSuggestions (\ni - IDENTIFIER_ASSIGNMENT," +
                 "\nv - VARIABLE_DEFINED_NOT_USED, \np - PARAMETER_NOT_USED, \nr - REDUNDANT_INITIALIZATION, " +
                 "\nw - WHILE_TO_FOR, \nn - VARIABLE_CAN_BE_NULL, \ne - EXCEPTION_SPLIT " +
-                "\nc - STRING_CONCATENATION\n)]");
+                "\nc - STRING_CONCATENATION\n" + "f - NESTED_IF_TO_SINGLE_IF\n" + "t - IF_ELSE_TO_TERNARY\n)]");
         exit(0);
     }
 
@@ -117,6 +118,9 @@ public class Main {
                     break;
                 case 'f':
                     suggestionsArray[i] = NESTED_IF_TO_SINGLE_IF;
+                    break;
+                case 't':
+                    suggestionsArray[i] = IF_ELSE_TO_TERNARY;
                     break;
                 default:
                     printUsageAndExit();

@@ -70,6 +70,14 @@ public class HelloWorld {
 
     }
 
+    public int getGreater(int a, int b) {
+        if (a > b) {
+            return a;
+        } else {
+            return b;
+        }
+    }
+
     public LocalDate getBirthDate() {
         LocalDate birthDate = LocalDate.of(5, 5, 5);
         return birthDate;
