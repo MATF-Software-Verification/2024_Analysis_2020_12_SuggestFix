@@ -16,6 +16,7 @@ public class SuggestionColorCode {
         final String ANSI_PURPLE = "\u001B[35m";
         final String ANSI_CYAN = "\u001B[36m";
         final String ANSI_WHITE = "\u001B[37m";
+        final String ANSI_MAGENTA = "\u001B[38;5;198m";
 
         suggestionColor.put(SuggestionTypeEnum.IDENTIFIER_ASSIGNMENT, ANSI_RED);
         suggestionColor.put(SuggestionTypeEnum.VARIABLE_DEFINED_NOT_USED, ANSI_GREEN);
@@ -25,6 +26,7 @@ public class SuggestionColorCode {
         suggestionColor.put(SuggestionTypeEnum.VARIABLE_CAN_BE_NULL, ANSI_CYAN);
         suggestionColor.put(SuggestionTypeEnum.EXCEPTION_SPLIT, ANSI_WHITE);
         suggestionColor.put(SuggestionTypeEnum.STRING_CONCATENATION, ANSI_YELLOW);
+        suggestionColor.put(SuggestionTypeEnum.NESTED_IF_TO_SINGLE_IF, ANSI_MAGENTA);
     }
 
     public static SuggestionColorCode getInstance() {

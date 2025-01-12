@@ -51,6 +51,11 @@ public class HelloWorld {
             e.printStackTrace();
         }
 
+        if (x > y) {
+            if (y > z) {
+                System.out.println("Hello");
+            }
+        }
 
     }
 

@@ -56,6 +56,7 @@ public class Main {
             wantedSuggestionsArray[5] = VARIABLE_CAN_BE_NULL;
             wantedSuggestionsArray[6] = EXCEPTION_SPLIT;
             wantedSuggestionsArray[7] = STRING_CONCATENATION;
+            wantedSuggestionsArray[8] = NESTED_IF_TO_SINGLE_IF;
         }
 
         File fileToReadFrom = new File(examplePath);
@@ -113,6 +114,9 @@ public class Main {
                     break;
                 case 'c':
                     suggestionsArray[i] = STRING_CONCATENATION;
+                    break;
+                case 'f':
+                    suggestionsArray[i] = NESTED_IF_TO_SINGLE_IF;
                     break;
                 default:
                     printUsageAndExit();

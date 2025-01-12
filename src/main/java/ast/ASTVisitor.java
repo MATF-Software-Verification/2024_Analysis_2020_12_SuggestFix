@@ -57,6 +57,10 @@ public class ASTVisitor extends VoidVisitorAdapter<Void> {
             if (doesSuggestionContains(SuggestionTypeEnum.VARIABLE_DEFINED_NOT_USED)) {
                 SuggestionDefinedNotUsed.checkIfVariableIsDeclaredButNotUsed(statements);
             }
+
+            if (doesSuggestionContains(SuggestionTypeEnum.NESTED_IF_TO_SINGLE_IF)) {
+                SuggestionNestedIfToSingleIf.checkAndSuggestNestedIfToSingleIf(statements);
+            }
         }
     }
 
