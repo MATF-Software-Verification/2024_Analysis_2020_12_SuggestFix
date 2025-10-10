@@ -1,8 +1,5 @@
 package ast;
 
-import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.utils.Pair;
-
 import java.util.*;
 
 public class SuggestionUtil {
@@ -46,6 +43,9 @@ public class SuggestionUtil {
                     break;
                 case IF_ELSE_TO_TERNARY:
                     sb.append(ifElseToTernaryToString(suggestion));
+                    break;
+                case FOR_LOOP_TO_FOR_EACH:
+                    sb.append(forLoopToForEachToString(suggestion));
                     break;
             }
             sb.append(colorCode.getSuggestionColor(suggestion.getType()));
@@ -189,6 +189,26 @@ public class SuggestionUtil {
 
     private static String ifElseToTernaryToString(Suggestion suggestion) {
         return new StringBuilder("Replace if-else with ternary operator:\n")
+                .append("Begin [")
+                .append(suggestion.getCurrent().getBegin())
+                .append("]\n")
+                .append(suggestion.getCurrent().getCode())
+                .append("\nEnd [")
+                .append(suggestion.getCurrent().getEnd())
+                .append("]\n")
+                .append("Can be replaced with:\n")
+                .append("Begin [")
+                .append(suggestion.getSuggested().getBegin())
+                .append("]\n")
+                .append(suggestion.getSuggested().getCode())
+                .append("\nEnd [")
+                .append(suggestion.getSuggested().getEnd())
+                .append("]\n")
+                .toString();
+    }
+
+    private static String forLoopToForEachToString(Suggestion suggestion) {
+        return new StringBuilder("Replace for loop with enhanced for loop:\n")
                 .append("Begin [")
                 .append(suggestion.getCurrent().getBegin())
                 .append("]\n")

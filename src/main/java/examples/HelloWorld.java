@@ -1,12 +1,10 @@
 package examples;
 
-import java.io.File;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -55,6 +53,13 @@ public class HelloWorld {
             if (y > z) {
                 System.out.println("Hello");
             }
+        }
+
+        List<String> names = new ArrayList<>();
+        names.add("Alice");
+        names.add("Bob");
+        for (int i = 0; i < names.size(); i++) {
+            System.out.println(names.get(i));
         }
 
     }

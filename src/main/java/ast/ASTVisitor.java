@@ -9,7 +9,6 @@ import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Optional;
 
 public class ASTVisitor extends VoidVisitorAdapter<Void> {
@@ -64,6 +63,15 @@ public class ASTVisitor extends VoidVisitorAdapter<Void> {
 
             if(doesSuggestionContains(SuggestionTypeEnum.IF_ELSE_TO_TERNARY)){
                 SuggestionIfElseToTernary.checkAndSuggestIfElseToTernary(statements);
+            }
+
+            if (doesSuggestionContains(SuggestionTypeEnum.FOR_LOOP_TO_FOR_EACH)) {
+                for (var statement : statements) {
+                    if (statement.isForStmt()) {
+                        ForStmt forStatement = (ForStmt) statement;
+                        new SuggestionForLoopToForEach().changeForLoopToForEach(forStatement);
+                    }
+                }
             }
         }
     }
