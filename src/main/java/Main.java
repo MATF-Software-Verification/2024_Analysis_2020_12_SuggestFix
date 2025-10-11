@@ -59,6 +59,7 @@ public class Main {
             wantedSuggestionsArray[8] = NESTED_IF_TO_SINGLE_IF;
             wantedSuggestionsArray[9] = IF_ELSE_TO_TERNARY;
             wantedSuggestionsArray[10] = FOR_LOOP_TO_FOR_EACH;
+            wantedSuggestionsArray[11] = STRING_EQUALITY_COMPARISON;
         }
 
         File fileToReadFrom = new File(examplePath);
@@ -84,7 +85,7 @@ public class Main {
                 "\nv - VARIABLE_DEFINED_NOT_USED, \np - PARAMETER_NOT_USED, \nr - REDUNDANT_INITIALIZATION, " +
                 "\nw - WHILE_TO_FOR, \nn - VARIABLE_CAN_BE_NULL, \ne - EXCEPTION_SPLIT " +
                 "\nc - STRING_CONCATENATION\n" + "f - NESTED_IF_TO_SINGLE_IF\n" + "t - IF_ELSE_TO_TERNARY\n" +
-                "l - FOR_LOOP_TO_FOR_EACH\n)]");
+                "l - FOR_LOOP_TO_FOR_EACH\n" + "s - STRING_EQUALITY_COMPARISON\n)]");
         exit(0);
     }
 
@@ -126,6 +127,9 @@ public class Main {
                     break;
                 case 'l':
                     suggestionsArray[i] = FOR_LOOP_TO_FOR_EACH;
+                    break;
+                case 's':
+                    suggestionsArray[i] = STRING_EQUALITY_COMPARISON;
                     break;
                 default:
                     printUsageAndExit();

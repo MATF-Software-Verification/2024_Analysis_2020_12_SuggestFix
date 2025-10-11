@@ -62,6 +62,12 @@ public class HelloWorld {
             System.out.println(names.get(i));
         }
 
+        String username = "admin";
+        String inputUsername = "admin";
+        if (username == inputUsername) {
+            System.out.println("Access granted");
+        }
+
     }
 
     public static float proba(int p, float q, double r) {

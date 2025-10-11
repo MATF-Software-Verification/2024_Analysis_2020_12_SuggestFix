@@ -47,6 +47,9 @@ public class SuggestionUtil {
                 case FOR_LOOP_TO_FOR_EACH:
                     sb.append(forLoopToForEachToString(suggestion));
                     break;
+                case STRING_EQUALITY_COMPARISON:
+                    sb.append(stringEqualityComparisonToString(suggestion));
+                    break;
             }
             sb.append(colorCode.getSuggestionColor(suggestion.getType()));
 
@@ -224,6 +227,22 @@ public class SuggestionUtil {
                 .append("\nEnd [")
                 .append(suggestion.getSuggested().getEnd())
                 .append("]\n")
+                .toString();
+    }
+
+    private static String stringEqualityComparisonToString(Suggestion suggestion) {
+        return new StringBuilder("Replace string comparison with .equals() method:\n")
+                .append("Line [")
+                .append(suggestion.getCurrent().getBegin())
+                .append("]\t")
+                .append(suggestion.getCurrent().getCode())
+                .append("\n")
+                .append("Should be replaced with:\n")
+                .append("Line [")
+                .append(suggestion.getSuggested().getBegin())
+                .append("]\t")
+                .append(suggestion.getSuggested().getCode())
+                .append("\n")
                 .toString();
     }
 

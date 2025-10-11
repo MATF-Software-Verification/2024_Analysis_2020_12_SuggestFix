@@ -29,6 +29,7 @@ public class SuggestionColorCode {
         suggestionColor.put(SuggestionTypeEnum.NESTED_IF_TO_SINGLE_IF, ANSI_MAGENTA);
         suggestionColor.put(SuggestionTypeEnum.IF_ELSE_TO_TERNARY, ANSI_ORANGE);
         suggestionColor.put(SuggestionTypeEnum.FOR_LOOP_TO_FOR_EACH, ANSI_CYAN);
+        suggestionColor.put(SuggestionTypeEnum.STRING_EQUALITY_COMPARISON, ANSI_RED);
     }
 
     public static SuggestionColorCode getInstance() {

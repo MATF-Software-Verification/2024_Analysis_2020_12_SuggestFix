@@ -6,6 +6,7 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.stmt.*;
+import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 import java.util.Arrays;
@@ -21,6 +22,17 @@ public class ASTVisitor extends VoidVisitorAdapter<Void> {
 
     @Override
     public void visit(BlockStmt n, Void arg) {
+        // First pass: Track String variables BEFORE visiting child nodes
+        if (n.getStatements().isNonEmpty() && doesSuggestionContains(SuggestionTypeEnum.STRING_EQUALITY_COMPARISON)) {
+            NodeList<Statement> statements = n.getStatements();
+            for (var statement : statements) {
+                if (statement.isExpressionStmt()) {
+                    ExpressionStmt expressionStmt = (ExpressionStmt) statement;
+                    SuggestionStringEqualityComparison.rememberStringVariables(expressionStmt);
+                }
+            }
+        }
+
         super.visit(n, arg);
 
         if (n.getStatements().isNonEmpty()) {
@@ -78,6 +90,11 @@ public class ASTVisitor extends VoidVisitorAdapter<Void> {
 
     @Override
     public void visit(MethodDeclaration n, Void arg) {
+        // Track String parameters before visiting method body
+        if (doesSuggestionContains(SuggestionTypeEnum.STRING_EQUALITY_COMPARISON)) {
+            SuggestionStringEqualityComparison.rememberStringParameters(n.getParameters());
+        }
+
         super.visit(n, arg);
 
         if (doesSuggestionContains(SuggestionTypeEnum.PARAMETER_NOT_USED)) {
@@ -112,9 +129,16 @@ public class ASTVisitor extends VoidVisitorAdapter<Void> {
 
     @Override
     public void visit(FieldDeclaration fieldDeclaration, Void arg) {
+        // Track String fields before visiting
+        if (doesSuggestionContains(SuggestionTypeEnum.STRING_EQUALITY_COMPARISON)) {
+            SuggestionStringEqualityComparison.rememberStringFields(fieldDeclaration);
+        }
+
         if (doesSuggestionContains(SuggestionTypeEnum.REDUNDANT_INITIALIZATION)) {
             super.visit(fieldDeclaration, arg);
             new SuggestionRedundantFieldInitialization().removeRedundantFieldInitialization(fieldDeclaration);
+        } else {
+            super.visit(fieldDeclaration, arg);
         }
     }
 
@@ -123,6 +147,15 @@ public class ASTVisitor extends VoidVisitorAdapter<Void> {
         if (doesSuggestionContains(SuggestionTypeEnum.EXCEPTION_SPLIT)) {
             super.visit(tryStatement, arg);
             new SuggestionSplitExceptions().splitExceptions(tryStatement);
+        }
+    }
+
+    @Override
+    public void visit(BinaryExpr binaryExpr, Void arg) {
+        super.visit(binaryExpr, arg);
+        
+        if (doesSuggestionContains(SuggestionTypeEnum.STRING_EQUALITY_COMPARISON)) {
+            new SuggestionStringEqualityComparison().checkStringEqualityComparison(binaryExpr);
         }
     }
 
