@@ -68,6 +68,9 @@ public class HelloWorld {
             System.out.println("Access granted");
         }
 
+        Object obj = "Hello World";
+        String message = (String) obj;
+        System.out.println(message);
     }
 
     public static float proba(int p, float q, double r) {

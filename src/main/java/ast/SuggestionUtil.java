@@ -50,6 +50,9 @@ public class SuggestionUtil {
                 case STRING_EQUALITY_COMPARISON:
                     sb.append(stringEqualityComparisonToString(suggestion));
                     break;
+                case SAFE_CAST:
+                    sb.append(safeCastToString(suggestion));
+                    break;
             }
             sb.append(colorCode.getSuggestionColor(suggestion.getType()));
 
@@ -243,6 +246,26 @@ public class SuggestionUtil {
                 .append("]\t")
                 .append(suggestion.getSuggested().getCode())
                 .append("\n")
+                .toString();
+    }
+
+    private static String safeCastToString(Suggestion suggestion) {
+        return new StringBuilder("Add instanceof check before cast:\n")
+                .append("Begin [")
+                .append(suggestion.getCurrent().getBegin())
+                .append("]\n")
+                .append(suggestion.getCurrent().getCode())
+                .append("\nEnd [")
+                .append(suggestion.getCurrent().getEnd())
+                .append("]\n")
+                .append("Can be replaced with:\n")
+                .append("Begin [")
+                .append(suggestion.getSuggested().getBegin())
+                .append("]\n")
+                .append(suggestion.getSuggested().getCode())
+                .append("\nEnd [")
+                .append(suggestion.getSuggested().getEnd())
+                .append("]\n")
                 .toString();
     }
 

@@ -159,6 +159,15 @@ public class ASTVisitor extends VoidVisitorAdapter<Void> {
         }
     }
 
+    @Override
+    public void visit(CastExpr castExpr, Void arg) {
+        super.visit(castExpr, arg);
+        
+        if (doesSuggestionContains(SuggestionTypeEnum.SAFE_CAST)) {
+            new SuggestionSafeCast().checkForUnsafeCast(castExpr);
+        }
+    }
+
     private Boolean doesSuggestionContains(SuggestionTypeEnum typeEnum) {
         return Arrays.stream(suggestions).anyMatch(x -> x == typeEnum);
     }

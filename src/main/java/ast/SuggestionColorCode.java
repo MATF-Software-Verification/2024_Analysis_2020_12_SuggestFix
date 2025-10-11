@@ -30,6 +30,7 @@ public class SuggestionColorCode {
         suggestionColor.put(SuggestionTypeEnum.IF_ELSE_TO_TERNARY, ANSI_ORANGE);
         suggestionColor.put(SuggestionTypeEnum.FOR_LOOP_TO_FOR_EACH, ANSI_CYAN);
         suggestionColor.put(SuggestionTypeEnum.STRING_EQUALITY_COMPARISON, ANSI_RED);
+        suggestionColor.put(SuggestionTypeEnum.SAFE_CAST, ANSI_YELLOW);
     }
 
     public static SuggestionColorCode getInstance() {
