@@ -7,9 +7,19 @@
 
 ## Pokretanje aplikacije :hammer:
 
-- Za kompilaciju je preporučeno razvojno okruženje IntelliJIDEA. Projekat koristi Gradle sistem za kompilaciju, pa se sve potrebne biblioteke automatski preuzimaju. Projekat se kompilira i pokreće kao standardni IntelliJIDEA projekat.
+Projekat koristi Gradle sistem za kompilaciju, pa se sve potrebne biblioteke automatski preuzimaju.
 
--  Argumenti kojima se kontroliše izvršavanje:
+### Kompilacija
+
+```bash
+# Kompilacija projekta i kreiranje JAR fajla sa svim zavisnostima
+./gradlew clean jar
+```
+
+JAR fajl će biti kreiran u: `build/libs/SuggestFix-1.0-SNAPSHOT.jar`
+
+
+### Argumenti kojima se kontroliše izvršavanje
 ```
 Arguments usage: fileName [-f fileNameToAnalyze(relative path to file and name without .java)]
 [-s wantedSuggestions (
@@ -31,9 +41,12 @@ a - SAFE_CAST
 ```
 Argument -s nije obavezan i ukoliko se ne navede biće ispisane sve dostupne sugestije.
 
-- Primer pokretanja (HelloWorld.java fajl nalazi se u istom folderu kao i .jar datoteka):
-```
-java -jar SuggestFix.jar -f HelloWorld
-```
+### Primeri pokretanja
 
+```bash
+# Sve sugestije za HelloWorld.java
+java -jar build/libs/SuggestFix-1.0-SNAPSHOT.jar -f HelloWorld
 
+# For-loop to for-each transformacija
+java -jar build/libs/SuggestFix-1.0-SNAPSHOT.jar -f ForLoopToForEachExample -s l
+```
