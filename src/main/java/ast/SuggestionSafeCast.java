@@ -1,8 +1,12 @@
 package ast;
 
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.FieldDeclaration;
+import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.CastExpr;
 import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.type.Type;
 
@@ -27,6 +31,10 @@ public class SuggestionSafeCast extends SuggestionNode {
         }
 
         if (!isSimpleStatement(containingStatement)) {
+            return;
+        }
+
+        if (isProblematicAssignment(containingStatement)) {
             return;
         }
 
@@ -57,6 +65,67 @@ public class SuggestionSafeCast extends SuggestionNode {
                typeStr.equals("boolean") || typeStr.equals("char") ||
                typeStr.equals("byte") || typeStr.equals("short");
     }
+
+    private boolean isProblematicAssignment(Statement statement) {
+        if (!statement.isExpressionStmt()) {
+            return false;
+        }
+
+        Expression expr = statement.asExpressionStmt().getExpression();
+
+        boolean isAssignment = expr.isAssignExpr() || expr.isVariableDeclarationExpr();
+
+        if (!isAssignment) {
+            return false;
+        }
+
+        if (expr.isAssignExpr()) {
+            AssignExpr assignExpr = expr.asAssignExpr();
+            Expression target = assignExpr.getTarget();
+
+                if (target.isFieldAccessExpr()) {
+                    if (isFinalFieldInConstructor(target.asFieldAccessExpr())) {
+                        return true;
+                    }
+                }
+        }
+
+        return false;
+    }
+
+    private boolean isFinalFieldInConstructor(FieldAccessExpr fieldAccess) {
+        if (fieldAccess.getScope().isThisExpr()) {
+            String fieldName = fieldAccess.getNameAsString();
+
+            FieldDeclaration fieldDecl = findFieldDeclaration(fieldAccess, fieldName);
+            if (fieldDecl != null) {
+                return fieldDecl.isFinal();
+            }
+        }
+        return false;
+    }
+
+    private FieldDeclaration findFieldDeclaration(FieldAccessExpr fieldAccess, String fieldName) {
+        Node current = fieldAccess;
+        while (current != null) {
+            if (current instanceof ClassOrInterfaceDeclaration classDecl) {
+
+                for (Node member : classDecl.getMembers()) {
+                    if (member instanceof FieldDeclaration fieldDecl) {
+                        for (var variable : fieldDecl.getVariables()) {
+                            if (variable.getNameAsString().equals(fieldName)) {
+                                return fieldDecl;
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            current = current.getParentNode().orElse(null);
+        }
+        return null;
+    }
+
 
     private void setCurrentCode(Statement statement) {
         this.currentCode = new SuggestionNode();
