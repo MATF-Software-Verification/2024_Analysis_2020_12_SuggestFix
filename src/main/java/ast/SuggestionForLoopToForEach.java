@@ -171,44 +171,105 @@ public class SuggestionForLoopToForEach {
     }
 
     private boolean analyzeStatementForAccess(Statement stmt, String loopVar, 
-                                               String collectionName, AccessPattern pattern) {
-        String stmtStr = stmt.toString();
-        
-        boolean hasGetAccess = stmtStr.contains(collectionName + ".get(" + loopVar + ")");
-        boolean hasArrayAccess = stmtStr.contains(collectionName + "[" + loopVar + "]");
-        
-        if (hasGetAccess || hasArrayAccess) {
+                                              String collectionName, AccessPattern pattern) {
+        if (hasCollectionAccess(stmt, collectionName, loopVar)) {
             pattern.hasValidAccess = true;
         }
+
+        if (modifiesCollection(stmt, collectionName, loopVar)) {
+            pattern.modifiesCollection = true;
+            return false;
+        }
+
+        if (usesLoopVarForOtherPurpose(stmt, collectionName, loopVar)) {
+            pattern.modifiesLoopVar = true;
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean hasCollectionAccess(Statement stmt, String collectionName, String loopVar) {
+        String stmtStr = stmt.toString();
+        return stmtStr.contains(collectionName + ".get(" + loopVar + ")") ||
+               stmtStr.contains(collectionName + "[" + loopVar + "]");
+    }
+
+    private boolean modifiesCollection(Statement stmt, String collectionName, String loopVar) {
+        String stmtStr = stmt.toString();
 
         if (stmtStr.contains(collectionName + ".add(") ||
             stmtStr.contains(collectionName + ".remove(") ||
             stmtStr.contains(collectionName + ".set(") ||
             stmtStr.contains(collectionName + ".clear(") ||
             stmtStr.contains(collectionName + ".put(")) {
-            pattern.modifiesCollection = true;
+            return true;
+        }
+
+        if (isCollectionPassedAsParameter(stmtStr, collectionName)) {
+            return true;
+        }
+
+        if (isArrayElementAssignment(stmtStr, collectionName, loopVar)) {
+            return true;
+        }
+
+        return isArrayElementUnaryOp(stmtStr, collectionName, loopVar);
+    }
+
+    private boolean isCollectionPassedAsParameter(String stmtStr, String collectionName) {
+        int index = 0;
+        while ((index = stmtStr.indexOf(collectionName, index)) != -1) {
+            int nextCharIndex = index + collectionName.length();
+
+            if (nextCharIndex < stmtStr.length()) {
+                char nextChar = stmtStr.charAt(nextCharIndex);
+
+                if (nextChar == '[' || nextChar == '.') {
+                    index = nextCharIndex;
+                    continue;
+                }
+
+                int openParenIndex = stmtStr.lastIndexOf('(', index);
+                if (openParenIndex != -1) {
+                    String between = stmtStr.substring(openParenIndex + 1, index).trim();
+                    if (between.isEmpty() || between.endsWith(",")) {
+                        return true;
+                    }
+                }
+            }
+
+            index = nextCharIndex;
+        }
+
+        return false;
+    }
+
+    private boolean isArrayElementAssignment(String stmtStr, String collectionName, String loopVar) {
+        return stmtStr.contains(collectionName + "[" + loopVar + "]") &&
+               stmtStr.matches(".*" + collectionName + "\\s*\\[\\s*" + loopVar + "\\s*\\]\\s*=.*");
+    }
+
+    private boolean isArrayElementUnaryOp(String stmtStr, String collectionName, String loopVar) {
+        String arrayAccess = collectionName + "[" + loopVar + "]";
+        if (!stmtStr.contains(arrayAccess)) {
             return false;
         }
 
-        if (stmtStr.matches(".*\\b" + collectionName + "\\s*\\[\\s*" + loopVar + "\\s*\\]\\s*=.*")) {
-            pattern.modifiesCollection = true;
-            return false;
-        }
+        return stmtStr.contains(arrayAccess + "++") ||
+               stmtStr.contains(arrayAccess + "--") ||
+               stmtStr.contains("++" + arrayAccess) ||
+               stmtStr.contains("--" + arrayAccess);
+    }
 
-        String withoutCollectionAccess = stmtStr;
-        if (hasGetAccess) {
-            withoutCollectionAccess = withoutCollectionAccess.replace(collectionName + ".get(" + loopVar + ")", "");
-        }
-        if (hasArrayAccess) {
-            withoutCollectionAccess = withoutCollectionAccess.replace(collectionName + "[" + loopVar + "]", "");
-        }
+    private boolean usesLoopVarForOtherPurpose(Statement stmt, String collectionName, String loopVar) {
+        String stmtStr = stmt.toString();
 
-        if (withoutCollectionAccess.matches(".*\\b" + loopVar + "\\b.*")) {
-            pattern.modifiesLoopVar = true;
-            return false;
-        }
+        String withoutAccess = stmtStr
+            .replace(collectionName + ".get(" + loopVar + ")", "")
+            .replace(collectionName + "[" + loopVar + "]", "");
 
-        return true;
+        return withoutAccess.matches(".*\\b" + loopVar + "\\b.*");
     }
 
     private String generateItemVarName(String collectionName) {
