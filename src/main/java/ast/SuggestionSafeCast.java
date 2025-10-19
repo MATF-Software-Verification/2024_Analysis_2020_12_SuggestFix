@@ -6,7 +6,7 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.CastExpr;
 import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.expr.FieldAccessExpr;
+import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.type.Type;
 
@@ -73,48 +73,34 @@ public class SuggestionSafeCast extends SuggestionNode {
 
         Expression expr = statement.asExpressionStmt().getExpression();
 
-        boolean isAssignment = expr.isAssignExpr() || expr.isVariableDeclarationExpr();
-
-        if (!isAssignment) {
-            return false;
-        }
-
         if (expr.isAssignExpr()) {
             AssignExpr assignExpr = expr.asAssignExpr();
             Expression target = assignExpr.getTarget();
 
-                if (target.isFieldAccessExpr()) {
-                    if (isFinalFieldInConstructor(target.asFieldAccessExpr())) {
-                        return true;
-                    }
+            if (target.isFieldAccessExpr()) {
+                return true;
+            }
+
+            if (target.isNameExpr()) {
+                String varName = target.asNameExpr().getNameAsString();
+                if (isClassField(target, varName)) {
+                    return true;
                 }
-        }
-
-        return false;
-    }
-
-    private boolean isFinalFieldInConstructor(FieldAccessExpr fieldAccess) {
-        if (fieldAccess.getScope().isThisExpr()) {
-            String fieldName = fieldAccess.getNameAsString();
-
-            FieldDeclaration fieldDecl = findFieldDeclaration(fieldAccess, fieldName);
-            if (fieldDecl != null) {
-                return fieldDecl.isFinal();
             }
         }
+
         return false;
     }
 
-    private FieldDeclaration findFieldDeclaration(FieldAccessExpr fieldAccess, String fieldName) {
-        Node current = fieldAccess;
+    private boolean isClassField(Expression expr, String varName) {
+        Node current = expr;
         while (current != null) {
             if (current instanceof ClassOrInterfaceDeclaration classDecl) {
-
                 for (Node member : classDecl.getMembers()) {
                     if (member instanceof FieldDeclaration fieldDecl) {
                         for (var variable : fieldDecl.getVariables()) {
-                            if (variable.getNameAsString().equals(fieldName)) {
-                                return fieldDecl;
+                            if (variable.getNameAsString().equals(varName)) {
+                                return true;
                             }
                         }
                     }
@@ -123,9 +109,8 @@ public class SuggestionSafeCast extends SuggestionNode {
             }
             current = current.getParentNode().orElse(null);
         }
-        return null;
+        return false;
     }
-
 
     private void setCurrentCode(Statement statement) {
         this.currentCode = new SuggestionNode();
@@ -145,10 +130,46 @@ public class SuggestionSafeCast extends SuggestionNode {
         this.suggestion.setBegin(this.currentCode.getBegin());
         this.suggestion.setEnd(this.currentCode.getEnd());
 
-        String instanceofCheck = expressionBeingCast.toString() + " instanceof " + targetType.toString();
-        String wrappedCode = "if (" + instanceofCheck + ") {\n    " + statement.toString() + "\n}";
-        
-        this.suggestion.setCode(wrappedCode);
+        String varName = extractVariableName(statement);
+
+        if (varName != null) {
+            String patternMatching = expressionBeingCast.toString() + " instanceof " + 
+                                    targetType.toString() + " " + varName;
+            String wrappedCode = "if (" + patternMatching + ") {\n    // TODO: Move all needed code here\n}";
+            this.suggestion.setCode(wrappedCode);
+        } else {
+            String instanceofCheck = expressionBeingCast.toString() + " instanceof " + targetType.toString();
+            String wrappedCode = "if (" + instanceofCheck + ") {\n    " + statement.toString() + "\n}";
+            this.suggestion.setCode(wrappedCode);
+        }
+    }
+
+    private String extractVariableName(Statement statement) {
+        if (!statement.isExpressionStmt()) {
+            return null;
+        }
+
+        Expression expr = statement.asExpressionStmt().getExpression();
+
+        if (expr.isVariableDeclarationExpr()) {
+            return extractVariableNameFromDeclaration(expr.asVariableDeclarationExpr());
+        }
+
+        if (expr.isAssignExpr()) {
+            AssignExpr assignExpr = expr.asAssignExpr();
+            if (assignExpr.getTarget().isNameExpr()) {
+                return assignExpr.getTarget().asNameExpr().getNameAsString();
+            }
+        }
+
+        return null;
+    }
+
+    private String extractVariableNameFromDeclaration(VariableDeclarationExpr varDecl) {
+        if (varDecl.getVariables().size() == 1) {
+            return varDecl.getVariables().get(0).getNameAsString();
+        }
+        return null;
     }
 
     private void createSuggestion(Statement statement, Expression expressionBeingCast, Type targetType) {
@@ -164,4 +185,3 @@ public class SuggestionSafeCast extends SuggestionNode {
         System.out.println("Suggested change: Add instanceof check before cast (prevents ClassCastException)");
     }
 }
-
