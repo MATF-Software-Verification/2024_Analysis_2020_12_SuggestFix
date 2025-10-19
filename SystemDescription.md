@@ -233,26 +233,44 @@ Metoda `checkStringEqualityComparison` proverava sve binarne izraze sa `==` ili 
 **Cilj:** Dodavanje `instanceof` provere pre kastovanja objekta kako bi se sprečila `ClassCastException` u runtime-u.
 
 **Šta detektuje:**
-Kastovanje objekata (ne primitivnih tipova) bez eksplicitne instanceof provere u kontekstu. Fokus je na jednostavnim statement-ima gde je bezbedno dodati proveru.
+Kastovanje objekata (ne primitivnih tipova) bez eksplicitne instanceof provere. Sistem razlikuje tri vrste cast operacija:
+1. **Deklaracije promenljivih** - koristi pattern matching sintaksu (Java 16+)
+2. **Dodele na lokalne promenljive** - koristi pattern matching sintaksu
+3. **Pozive metoda** - koristi klasičnu instanceof sintaksu
 
-**Primer:**
+**Primeri:**
+
+**Deklaracija promenljive:**
 ```java
 // Pre:
 String str = (String) obj;
 
 // Posle:
+if (obj instanceof String str) {
+    // TODO: Move all usages of 'str' here
+}
+```
+
+**Poziv metode:**
+```java
+// Pre:
+processString((String) obj);
+
+// Posle:
 if (obj instanceof String) {
-    String str = (String) obj;
+    processString((String) obj);
 }
 ```
 
 **Analiza:**
-Metoda `checkForUnsafeCast` filtrira primitivne kastove (koji su sigurni), pronalazi statement koji sadrži cast, i generiše wrap sa instanceof proverom. Ne pokušava da detektuje postojeće provere niti da generiše else granu, već samo upozorava korisnika na potencijalnu opasnost.
+Metoda `checkForUnsafeCast` filtrira primitivne kastove i problematične slučajeve:
+- **Klasna polja** - ne sugeriše transformaciju jer bi ograničila doseg polja
+- **Lokalne promenljive** - sugeriše sa TODO komentarom
+- **Pozivi metoda** - sugeriše klasičnu instanceof sintaksu
 
 **Prednosti transformacije:**
 - Prevencija runtime exceptions
-- Eksplicitna provera tipa
-- Best practice za bezbednost
+- Eksplicitna provera tipa pre kastovanja
 
 ---
 
